@@ -11,8 +11,10 @@ class Block {
      * @param {string} timestamp - time when the block was created.
      * @param {*} data - all the data associated with the block.
      * @param {string} previousHash - hash of the previous block.
-     * @returns {void}
-     */
+     * @param {string} hash - hash of the current block.
+     * @param {number} nonce - random data associated to the block - helps implement proof of work.
+	 * @returns {void}
+	*/
 	constructor(index, timestamp, data, previousHash = '') {
 		this.index = index;
 		this.timestamp = timestamp;
@@ -20,20 +22,40 @@ class Block {
 		this.previousHash = previousHash;
 
 		this.hash = this.calculateHash();
+		this.nonce = 0;
 	}
 
 	/* *
-     * Calculates the hash function of a block using SHA256 hash function from the crypto-js library.
-     *
-     * @returns {string} hash - calculated hash taking in consideration all related data.
-     */
+	* Calculates the hash function of a block using SHA256 hash function from the crypto-js library.
+	*
+	* @returns {string} hash - calculated hash taking in consideration all related data.
+	*/
 	calculateHash = () => {
 		return SHA256(
 			this.index +
 				this.previousHash +
 				this.timestamp +
+				this.nonce +
 				JSON.stringify(this.data)
 		).toString();
+	};
+
+	/* *
+	* Calculates the hash function of a block using SHA256 hash function from the crypto-js library.
+	*
+	* @param {number} difficulty - the number of zeroes in the beginning we want, will keep calculating hash until finds one - helps implement proof of work.
+	* @returns {void}
+	*/
+	mineBlock = (difficulty) => {
+		while (
+			this.hash.substring(0, difficulty) !==
+			Array(difficulty + 1).join('0')
+		) {
+			this.nonce += 1;
+			this.hash = this.calculateHash();
+		}
+
+		console.log('Block mined: ' + this.hash);
 	};
 }
 
@@ -45,11 +67,13 @@ class Blockchain {
      * Initializes a new {@code Blockchain} instance. 
      *
      * @param {array Block} chain - an array of multiple blocks combined to form a blockchain.
+     * @param {number} difficulty - number of zeroes in the beginning of the hash.
      * 
      * @returns {void}
      */
 	constructor() {
 		this.chain = [ this.createGenesisBlock() ];
+		this.difficulty = 3;
 	}
 
 	/* *
@@ -81,7 +105,8 @@ class Blockchain {
      */
 	addBlock = (newBlock) => {
 		newBlock.previousHash = this.getLatestBlock().hash;
-		newBlock.hash = newBlock.calculateHash();
+		// newBlock.hash = newBlock.calculateHash();
+		newBlock.mineBlock(this.difficulty);
 		this.chain.push(newBlock);
 	};
 
@@ -103,7 +128,11 @@ class Blockchain {
 }
 
 let scriptCoin = new Blockchain();
+
+console.log('Mining Block 1...');
 scriptCoin.addBlock(new Block(1, '16/07/2021', { amount: 4 }));
+
+console.log('Mining Block 2...');
 scriptCoin.addBlock(new Block(2, '17/07/2021', { amount: 10 }));
 
-console.log(JSON.stringify(scriptCoin, null, 4));
+// console.log(JSON.stringify(scriptCoin, null, 4));

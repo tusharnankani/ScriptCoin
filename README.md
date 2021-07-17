@@ -47,7 +47,14 @@ npm i --save crypto-js
 
 #### ToDo
 
-- [ ] Implement Proof of Work
+- [X] Implement Proof of Work
+
+```bash
+Mining Block 1...
+Block mined: 00000d0b8d82506f22f779a2f35e94fa761ec0a7911d4fd2cf6a56c71063286c
+Mining Block 2...
+Block mined: 0000051d0e6fcd357899d8ebe0c072abeef7ab8111c97bdfd0c5762e5f954e61
+```
 
 ### Motivation
 
